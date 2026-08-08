@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PKG Editor</title>
+<style>
+  :root {
+    --bg: #14171c;
+    --panel: #1c2028;
+    --panel-border: #2a2f3a;
+    --text: #e7e9ee;
+    --muted: #8a90a0;
+    --accent: #5ad1c4;
+    --accent-dim: #3a8f86;
+    --danger: #e0645a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(circle at 20% -10%, #1f2530 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  .card {
+    width: 100%;
+    max-width: 560px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 32px;
+  }
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+  code {
+    background: #262b35;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  /* Toggle switch */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .toggle-label {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-track {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #33394a;
+    border-radius: 999px;
+    transition: background .18s ease;
+  }
+  .slider-track::before {
+    content: "";
+    position: absolute;
+    height: 20px; width: 20px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .18s ease;
+  }
+  input:checked + .slider-track { background: var(--accent-dim); }
+  input:checked + .slider-track::before { transform: translateX(20px); }
+
+  /* heightRate control */
+  .rate-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: #33394a;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid #10141a;
+    box-shadow: 0 0 0 1px var(--accent-dim);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid #10141a;
+  }
+  .rate-input-wrap {
+    position: relative;
+    width: 92px;
+    flex-shrink: 0;
+  }
+  .rate-input-wrap input[type="text"] {
+    width: 100%;
+    background: #10141a;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    padding: 9px 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .rate-input-wrap input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-dim);
+  }
+  .rate-bounds {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  button.generate {
+    width: 100%;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #0b1210;
+    cursor: pointer;
+    transition: filter .15s ease, transform .1s ease;
+  }
+  button.generate:hover { filter: brightness(1.08); }
+  button.generate:active { transform: scale(0.99); }
+  button.generate:disabled {
+    background: #33394a;
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .status {
+    margin-top: 14px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--muted);
+    min-height: 18px;
+  }
+  .status.error { color: var(--danger); }
+  .status.ok { color: var(--accent); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>PKG Editor</h1>
+    <p class="subtitle">Chỉnh sửa CommonActions_pkg &amp; Actor_530_Actions_pkg</p>
+
+    <div class="section">
+      <p class="section-title">Common Actions</p>
+      <p class="section-desc">Chèn <code>Track</code> Ninstaller-Cam vào <code>commonresource/Back.xml</code>, ngay trước <code>&lt;/Action&gt;</code>.</p>
+      <div class="toggle-row">
+        <span class="toggle-label">Chèn vào Back.xml</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleBack" checked>
+          <span class="slider-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title">Actor 530 · P2E1</p>
+      <p class="section-desc">Đặt <code>leftTimeSlerpBack = true</code> và hệ số <code>heightRate</code> theo lựa chọn bên dưới.</p>
+      <div class="rate-row">
+        <input type="range" id="rateSlider" min="1.000" max="5.000" step="0.001" value="1.000">
+        <div class="rate-input-wrap">
+          <input type="text" id="rateInput" value="x1">
+        </div>
+      </div>
+      <div class="rate-bounds">
+        <span>x1</span>
+        <span>x5</span>
+      </div>
+    </div>
+
+    <button class="generate" id="generateBtn">Tạo file PKG</button>
+    <p class="status" id="status"></p>
+  </div>
+
+<script>
+const slider = document.getElementById('rateSlider');
+const rateInput = document.getElementById('rateInput');
+const toggleBack = document.getElementById('toggleBack');
+const generateBtn = document.getElementById('generateBtn');
+const statusEl = document.getElementById('status');
+
+const MIN = 1.0, MAX = 5.0;
+
+function formatMultiplier(value) {
+  // value is the raw heightRate (1.000 - 5.000). Display as "xN,NNN" trimmed.
+  let s = value.toFixed(3);
+  s = s.replace(/0+$/, '').replace(/\.$/, ''); // trim trailing zeros
+  if (s.indexOf('.') === -1) {
+    return 'x' + s;
+  }
+  return 'x' + s.replace('.', ',');
+}
+
+function parseMultiplierInput(raw) {
+  // Accept "x3,2", "3,2", "x3.2", "3.2" etc. Normalize comma/dot, strip 'x'.
+  let cleaned = raw.trim().toLowerCase().replace(/^x/, '');
+  cleaned = cleaned.replace(',', '.');
+  let num = parseFloat(cleaned);
+  if (isNaN(num)) return null;
+  if (num < MIN) num = MIN;
+  if (num > MAX) num = MAX;
+  return num;
+}
+
+let currentRate = 1.0;
+
+function setRate(value, updateInput = true) {
+  currentRate = Math.min(MAX, Math.max(MIN, value));
+  slider.value = currentRate.toFixed(3);
+  if (updateInput) {
+    rateInput.value = formatMultiplier(currentRate);
+  }
+}
+
+slider.addEventListener('input', () => {
+  setRate(parseFloat(slider.value));
+});
+
+rateInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const parsed = parseMultiplierInput(rateInput.value);
+    if (parsed !== null) {
+      setRate(parsed);
+    } else {
+      rateInput.value = formatMultiplier(currentRate);
+    }
+    rateInput.blur();
+  }
+});
+
+rateInput.addEventListener('blur', () => {
+  const parsed = parseMultiplierInput(rateInput.value);
+  setRate(parsed !== null ? parsed : currentRate);
+});
+
+generateBtn.addEventListener('click', async () => {
+  statusEl.textContent = '';
+  statusEl.className = 'status';
+  generateBtn.disabled = true;
+  generateBtn.textContent = 'Đang xử lý...';
+
+  try {
+    const params = new URLSearchParams({
+      insert_back_snippet: toggleBack.checked ? 'true' : 'false',
+      height_rate: currentRate.toFixed(3),
+    });
+    const res = await fetch('/api/generate?' + params.toString());
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({detail: 'Lỗi không xác định'}));
+      throw new Error(err.detail || 'Lỗi không xác định');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pkg_edited.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    statusEl.textContent = 'Đã tạo xong, đang tải xuống...';
+    statusEl.className = 'status ok';
+  } catch (e) {
+    statusEl.textContent = 'Lỗi: ' + e.message;
+    statusEl.className = 'status error';
+  } finally {
+    generateBtn.disabled = false;
+    generateBtn.textContent = 'Tạo file PKG';
+  }
+});
+</script>
+</body>
+</html>
