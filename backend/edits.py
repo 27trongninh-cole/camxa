@@ -12,8 +12,8 @@ import pkg_codec as pc
 
 DATA_DIR = Path(__file__).parent / "data"
 
-COMMON_PKG_PATH = DATA_DIR / "CommonActions_pkg.bytes"
-ACTOR530_PKG_PATH = DATA_DIR / "Actor_530_Actions_pkg.bytes"
+COMMON_PKG_PATH = DATA_DIR / "CommonActions.pkg.bytes"
+ACTOR530_PKG_PATH = DATA_DIR / "Actor_530_Actions.pkg.bytes"
 BACK_SNIPPET_PATH = DATA_DIR / "back_insert_snippet.xml"
 
 BACK_XML_ENTRY = "commonresource/Back.xml"

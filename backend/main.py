@@ -59,8 +59,8 @@ def generate(
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr(f"{base_path}/CommonActions_pkg.bytes", common_pkg)
-        zf.writestr(f"{base_path}/Actor_530_Actions_pkg.bytes", actor_pkg)
+        zf.writestr(f"{base_path}/CommonActions.pkg.bytes", common_pkg)
+        zf.writestr(f"{base_path}/Actor_530_Actions.pkg.bytes", actor_pkg)
     buf.seek(0)
 
     multiplier_label = format_multiplier_vn(snapped_rate)

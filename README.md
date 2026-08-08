@@ -2,8 +2,8 @@
 
 Web tool chỉnh sửa 2 file `.pkg` (thực chất là zip chứa các XML nén bằng zstd + dictionary tuỳ chỉnh):
 
-- `CommonActions_pkg.bytes` → chèn `Track` cố định vào `commonresource/Back.xml`, trước thẻ `</Action>` (bật/tắt bằng toggle).
-- `Actor_530_Actions_pkg.bytes` → trong `530_Dirak/skill/P2E1.xml`:
+- `CommonActions.pkg.bytes` → chèn `Track` cố định vào `commonresource/Back.xml`, trước thẻ `</Action>` (luôn áp dụng).
+- `Actor_530_Actions.pkg.bytes` → trong `530_Dirak/skill/P2E1.xml`:
   - đặt `leftTimeSlerpBack` = `true` (cố định)
   - đặt `heightRate` = giá trị người dùng chọn (1.000 – 5.000, hiển thị dạng hệ số nhân x1 – x5)
 
@@ -15,8 +15,8 @@ File tải về được đóng gói theo đúng cấu trúc thư mục game:
 
 ```
 Resources/<version>/Ages/Prefab_Characters/Prefab_Hero/
-  CommonActions_pkg.bytes
-  Actor_530_Actions_pkg.bytes
+  CommonActions.pkg.bytes
+  Actor_530_Actions.pkg.bytes
 ```
 
 `<version>` lấy từ `backend/data/version.txt` — khi game ra bản mới, chỉ cần sửa nội dung file này
@@ -30,8 +30,8 @@ backend/
   pkg_codec.py       # Core: giải mã / mã hoá định dạng zstd+dict, đóng gói lại zip
   edits.py            # Logic chỉnh sửa cố định cho Back.xml và P2E1.xml
   data/
-    CommonActions_pkg.bytes
-    Actor_530_Actions_pkg.bytes
+    CommonActions.pkg.bytes
+    Actor_530_Actions.pkg.bytes
     zstd_dict.bin
     back_insert_snippet.xml   # Đoạn Track cố định chèn vào Back.xml
   requirements.txt
@@ -72,5 +72,5 @@ Repo đã có sẵn `render.yaml` (Blueprint). Cách deploy:
 `GET /api/generate?insert_back_snippet=true|false&height_rate=1.000..5.000`
 
 Trả về file `pkg_edited.zip` chứa 2 file:
-- `CommonActions_pkg.bytes`
-- `Actor_530_Actions_pkg.bytes`
+- `CommonActions.pkg.bytes`
+- `Actor_530_Actions.pkg.bytes`
