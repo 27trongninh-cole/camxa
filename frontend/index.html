@@ -132,33 +132,6 @@
     color: var(--muted);
   }
 
-  .manual-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .manual-row label {
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .manual-row input[type="text"] {
-    width: 84px;
-    background: #10141a;
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    padding: 8px;
-    font-variant-numeric: tabular-nums;
-  }
-  .manual-row input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent-dim);
-  }
-
   button.generate {
     width: 100%;
     padding: 15px;
@@ -197,7 +170,7 @@
 
     <div class="section">
       <p class="section-title">Hệ số camera</p>
-      <div class="rate-display" id="rateDisplay">x1</div>
+      <div class="rate-display" id="rateDisplay">Mặc định</div>
       <div class="preview-wrap" id="previewWrap">
         <span class="preview-loading">Đang tải ảnh...</span>
       </div>
@@ -205,10 +178,6 @@
       <div class="rate-bounds">
         <span>x1</span>
         <span>x5</span>
-      </div>
-      <div class="manual-row">
-        <label for="rateInput">Nhập tay:</label>
-        <input type="text" id="rateInput" value="x1">
       </div>
     </div>
 
@@ -218,7 +187,6 @@
 
 <script>
 const slider = document.getElementById('rateSlider');
-const rateInput = document.getElementById('rateInput');
 const rateDisplay = document.getElementById('rateDisplay');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
@@ -256,9 +224,8 @@ function updatePreview(value) {
 }
 
 function formatMultiplier(value) {
-  let s = value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
-  if (s.indexOf('.') === -1) return 'x' + s;
-  return 'x' + s.replace('.', ',');
+  if (Math.abs(value - MIN) < 1e-6) return 'Mặc định';
+  return 'x' + value.toFixed(1);
 }
 
 function snapToStep(value) {
@@ -267,46 +234,17 @@ function snapToStep(value) {
   return Math.round(snapped * 1000) / 1000;
 }
 
-function parseMultiplierInput(raw) {
-  let cleaned = raw.trim().toLowerCase().replace(/^x/, '');
-  cleaned = cleaned.replace(',', '.');
-  let num = parseFloat(cleaned);
-  if (isNaN(num)) return null;
-  return snapToStep(num);
-}
-
 let currentRate = 1.0;
 
-function setRate(value, updateInput = true) {
+function setRate(value) {
   currentRate = snapToStep(value);
   slider.value = currentRate;
   rateDisplay.textContent = formatMultiplier(currentRate);
   updatePreview(currentRate);
-  if (updateInput) {
-    rateInput.value = formatMultiplier(currentRate);
-  }
 }
 
 slider.addEventListener('input', () => {
   setRate(parseFloat(slider.value));
-});
-
-rateInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const parsed = parseMultiplierInput(rateInput.value);
-    if (parsed !== null) {
-      setRate(parsed);
-    } else {
-      rateInput.value = formatMultiplier(currentRate);
-    }
-    rateInput.blur();
-  }
-});
-
-rateInput.addEventListener('blur', () => {
-  const parsed = parseMultiplierInput(rateInput.value);
-  setRate(parsed !== null ? parsed : currentRate);
 });
 
 generateBtn.addEventListener('click', async () => {
