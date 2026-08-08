@@ -64,7 +64,7 @@ def generate(
     buf.seek(0)
 
     multiplier_label = format_multiplier_vn(snapped_rate)
-    filename = f"Camera {multiplier_label} - Ninfinity.zip"
+    filename = f"Camera {multiplier_label} | {game_version} - Ninfinity.zip"
     # ASCII-safe fallback (some clients don't parse filename*) + proper UTF-8 name
     ascii_fallback = filename.encode("ascii", "ignore").decode("ascii") or "download.zip"
     from urllib.parse import quote
