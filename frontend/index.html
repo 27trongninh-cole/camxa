@@ -101,6 +101,38 @@
     margin-bottom: 22px;
   }
 
+  .preview-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1200 / 540;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0d1015;
+    margin-bottom: 22px;
+    border: 1px solid var(--panel-border);
+  }
+  .preview-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .preview-wrap img.active {
+    opacity: 1;
+  }
+  .preview-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
   .manual-row {
     display: flex;
     align-items: center;
@@ -167,6 +199,9 @@
     <div class="section">
       <p class="section-title">Hệ số camera</p>
       <div class="rate-display" id="rateDisplay">x1</div>
+      <div class="preview-wrap" id="previewWrap">
+        <span class="preview-loading">Đang tải ảnh...</span>
+      </div>
       <input type="range" id="rateSlider" min="1" max="5" step="0.5" value="1">
       <div class="rate-bounds">
         <span>x1</span>
@@ -188,8 +223,38 @@ const rateInput = document.getElementById('rateInput');
 const rateDisplay = document.getElementById('rateDisplay');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
+const previewWrap = document.getElementById('previewWrap');
 
 const MIN = 1.0, MAX = 5.0, STEP = 0.5;
+
+// Preload all 9 preview images (1.0, 1.5, ... 5.0) keyed by fixed-point string
+const previewLevels = [];
+for (let v = MIN; v <= MAX + 1e-9; v += STEP) {
+  previewLevels.push(Math.round(v * 10) / 10);
+}
+const previewImgs = {};
+previewLevels.forEach(level => {
+  const img = document.createElement('img');
+  img.src = `preview/${level.toFixed(1)}.jpg`;
+  img.alt = `Preview x${level}`;
+  previewWrap.appendChild(img);
+  previewImgs[level.toFixed(1)] = img;
+});
+// Remove loading label once the first image is ready (or on error, still remove)
+const firstImg = previewImgs[MIN.toFixed(1)];
+const clearLoading = () => {
+  const loading = previewWrap.querySelector('.preview-loading');
+  if (loading) loading.remove();
+};
+firstImg.addEventListener('load', clearLoading);
+firstImg.addEventListener('error', clearLoading);
+
+function updatePreview(value) {
+  const key = value.toFixed(1);
+  Object.entries(previewImgs).forEach(([k, img]) => {
+    img.classList.toggle('active', k === key);
+  });
+}
 
 function formatMultiplier(value) {
   let s = value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
@@ -217,6 +282,7 @@ function setRate(value, updateInput = true) {
   currentRate = snapToStep(value);
   slider.value = currentRate;
   rateDisplay.textContent = formatMultiplier(currentRate);
+  updatePreview(currentRate);
   if (updateInput) {
     rateInput.value = formatMultiplier(currentRate);
   }
@@ -291,6 +357,9 @@ generateBtn.addEventListener('click', async () => {
     generateBtn.textContent = 'Tạo & tải file';
   }
 });
+
+// Initialize preview with the default rate
+updatePreview(currentRate);
 </script>
 </body>
 </html>
