@@ -20,7 +20,7 @@ Resources/<version>/Ages/Prefab_Characters/Prefab_Hero/
 ```
 
 `<version>` lấy từ `backend/data/version.txt` — khi game ra bản mới, chỉ cần sửa nội dung file này
-(ví dụ đổi `1.63.1` thành `1.64.0`) rồi commit, không cần đụng code.
+(ví dụ đổi `1.64.1` thành `1.65.0`) rồi commit, không cần đụng code.
 
 ## Cấu trúc repo
 
