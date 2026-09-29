@@ -53,6 +53,24 @@
     color: var(--accent);
     line-height: 1.2;
   }
+  .app-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .version-badge {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 999px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    background: rgba(233, 69, 96, 0.1);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .version-badge[hidden] { display: none; }
   .app-subtitle {
     font-size: 12px;
     color: var(--text-dim);
@@ -184,7 +202,10 @@
     <div class="app-header">
       <img src="assets/logo.png" alt="Ninfinity">
       <div>
-        <div class="app-title">Camera Ninfinity</div>
+        <div class="app-title-row">
+          <div class="app-title">Camera Ninfinity</div>
+          <span class="version-badge" id="versionBadge" hidden></span>
+        </div>
         <div class="app-subtitle">Liên Quân Mobile - by Ninfinity</div>
       </div>
     </div>
@@ -212,6 +233,7 @@ const rateDisplay = document.getElementById('rateDisplay');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
 const previewWrap = document.getElementById('previewWrap');
+const versionBadge = document.getElementById('versionBadge');
 
 const MIN = 1.0, MAX = 5.0, STEP = 0.5;
 
@@ -315,6 +337,17 @@ generateBtn.addEventListener('click', async () => {
     generateBtn.textContent = 'Tạo & tải file';
   }
 });
+
+// Show the game version the generated files are built for (from backend/data/version.txt)
+fetch('/api/version')
+  .then(res => res.ok ? res.json() : Promise.reject())
+  .then(data => {
+    if (data && data.version) {
+      versionBadge.textContent = 'v' + data.version;
+      versionBadge.hidden = false;
+    }
+  })
+  .catch(() => { /* badge stays hidden if the API is unreachable */ });
 
 // Initialize preview with the default rate
 updatePreview(currentRate);

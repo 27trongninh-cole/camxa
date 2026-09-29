@@ -39,6 +39,11 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/version")
+def version():
+    return {"version": get_game_version()}
+
+
 @app.get("/api/generate")
 def generate(
     height_rate: float = Query(

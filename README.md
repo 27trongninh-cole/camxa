@@ -71,6 +71,8 @@ Repo đã có sẵn `render.yaml` (Blueprint). Cách deploy:
 
 `GET /api/generate?insert_back_snippet=true|false&height_rate=1.000..5.000`
 
+`GET /api/version` → `{"version": "1.64.1"}` (đọc từ `backend/data/version.txt`, frontend dùng để hiện badge phiên bản cạnh tiêu đề)
+
 Trả về file `pkg_edited.zip` chứa 2 file:
 - `CommonActions.pkg.bytes`
 - `Actor_530_Actions.pkg.bytes`
